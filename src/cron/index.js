@@ -55,7 +55,7 @@ function startCron() {
   runJobTrackerPipeline();
   
   // Schedule for every 10 mins
-  cron.schedule('*/10 * * * *', () => {
+  cron.schedule('*/5 * * * *', () => {
     runJobTrackerPipeline();
   });
 }
