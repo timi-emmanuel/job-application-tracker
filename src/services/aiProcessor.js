@@ -10,7 +10,7 @@ async function extractJobDetails(emailText) {
     const prompt = `
 You are a helpful assistant that extracts job application details from emails.
 
-CRITICAL INSTRUCTION: First, determine if this email is an ACTUAL confirmation that the user has applied for a job, or an interview invitation (e.g., "Your application was sent", "Application submitted", "Interview invitation").
+CRITICAL INSTRUCTION: First, determine if this email is an ACTUAL confirmation that the user has applied for a job, an interview invitation, OR an actual job application email that the user sent directly to a company (e.g., "I am applying for...", "Please find my CV attached").
 If the email is just a job alert, job recommendation, newsletter, or marketing email, it is NOT valid.
 
 If the email IS a valid application confirmation or interview invite, extract the Company Name, the Job Role, and the Application Status.
