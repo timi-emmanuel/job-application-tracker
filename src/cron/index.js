@@ -26,6 +26,9 @@ async function runJobTrackerPipeline() {
       
       console.log(`\nProcessing Email: "${email.subject}"`);
       
+      // Add a 4.5 second delay to respect Gemini's free tier limit of 15 Requests Per Minute
+      await new Promise(resolve => setTimeout(resolve, 4500));
+
       // 2. Use AI (Zorveus) to extract the structured data
       const jobData = await extractJobDetails(email.text || email.subject);
       
