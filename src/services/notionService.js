@@ -14,20 +14,33 @@ async function getProcessedEmailIds() {
     const existing = new Set();
 
     while (hasMore) {
-      const response = await notion.databases.query({
-        database_id: dbId,
-        start_cursor: cursor,
+      const body = cursor ? { start_cursor: cursor } : {};
+      
+      const response = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NOTION_API_KEY}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
       });
 
-      for (const page of response.results) {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      const data = await response.json();
+
+      for (const page of data.results) {
         const emailIdProp = page.properties.EmailID?.rich_text;
         if (emailIdProp && emailIdProp.length > 0) {
           existing.add(emailIdProp[0].text.content);
         }
       }
 
-      hasMore = response.has_more;
-      cursor = response.next_cursor;
+      hasMore = data.has_more;
+      cursor = data.next_cursor;
     }
     return Array.from(existing);
   } catch (error) {
