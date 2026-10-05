@@ -4,7 +4,7 @@ A fully automated, 100% stateless Node.js background worker that scans your Gmai
 
 ## 🌟 Features
 - **Gmail Integration:** Polls your inbox for recent job applications.
-- **AI-Powered Filtering:** Uses an LLM (via Zorveus or OpenAI) to extract structured data and ruthlessly ignore newsletters and job alerts.
+- **AI-Powered Filtering:** Uses an LLM (via Zorveus or OpenAI) to extract structured data and ruthlessly ignore newsletters and job alerts. *(Note: Email bodies are sent to a third-party LLM for processing, which is fine for personal use but good to know for privacy!)*
 - **Notion Sync:** Pushes valid applications directly to a Notion Database.
 - **Stateless & Cloud-Ready:** Uses Notion as the source of truth for deduplication, meaning it can be deployed on ephemeral cloud hosts (like Render or Railway) without losing state.
 
@@ -31,8 +31,8 @@ Before you begin, you will need:
 ### 2. Gmail Setup
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Enable the **Gmail API**.
-3. Create an **OAuth Consent Screen** (External). Add your email as a "Test user".
-4. Create **Credentials** > **OAuth client ID** > **Desktop app**.
+3. Create an **OAuth Consent Screen** (External). **CRITICAL:** Once created, click "Publish App" to move it from "Testing" to "In production". If you leave it in Testing mode, Google will force your refresh tokens to expire every 7 days, and your bot will silently break!
+4. Create **Credentials** > **OAuth client ID** > **Desktop app** (Desktop app is used so we can easily authorize it via `http://localhost`).
 5. Download the JSON and save it in the root folder as `credentials.json`.
 
 ---
@@ -41,8 +41,8 @@ Before you begin, you will need:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/job-tracker-pipeline.git
-   cd job-tracker-pipeline
+   git clone https://github.com/timi-emmanuel/job-application-tracker.git
+   cd job-application-tracker
    npm install
    ```
 
@@ -69,7 +69,7 @@ Before you begin, you will need:
    ```
    Click the link, log in, and you will be redirected to a `localhost` URL that will likely say "Site cannot be reached". Copy the entire URL from your browser's address bar. 
 
-   Extract the `code=` value from the URL and run:
+   Extract the `code=` value from the URL. *(Note: The code is URL-encoded. If it contains `%2F`, you might need to decode it to a forward slash `/` before passing it to the script).* Then run:
    ```bash
    node getToken.js "YOUR_EXTRACTED_CODE_HERE"
    ```
