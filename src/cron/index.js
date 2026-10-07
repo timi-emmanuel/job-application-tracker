@@ -57,8 +57,8 @@ function startCron() {
   // Run immediately on startup
   runJobTrackerPipeline();
   
-  // Schedule for every 10 mins
-  cron.schedule('*/5 * * * *', () => {
+  // Schedule for every day at 12:00 AM
+  cron.schedule('0 0 * * *', () => {
     runJobTrackerPipeline();
   });
 }

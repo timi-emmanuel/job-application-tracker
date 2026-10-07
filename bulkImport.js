@@ -56,7 +56,7 @@ async function runBulkImport() {
         
         const jobData = await extractJobDetails(text || subject);
         
-        if (jobData && jobData.Company !== "Unknown") {
+        if (jobData && jobData.Valid && jobData.Company && jobData.Company !== "Unknown") {
           console.log(`💬 AI Extracted: ${jobData.Company} | ${jobData.Role} | ${jobData.Status}`);
           await saveJobToNotion({
             ...jobData,
