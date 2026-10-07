@@ -1,4 +1,9 @@
 require('dotenv').config();
+const { Zorveus } = require('@zorveus/sdk');
+
+const client = new Zorveus({
+  apiKey: process.env.ZORVEUS_API_KEY,
+});
 
 async function extractJobDetails(emailText) {
   try {
@@ -28,38 +33,21 @@ ${emailText}
 """
 `;
 
-    // Fetch the API Key
-    const apiKey = process.env.GEMINI_API_KEY; 
-    
-    if (!apiKey) {
-        throw new Error("Missing GEMINI_API_KEY in .env file!");
-    }
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
-      })
+    const completion = await client.chat.completions.create({
+      model: "zorveus/gpt-oss-120b",
+      messages: [
+        { role: "system", content: "You are a precise data extraction bot. Always return pure JSON without markdown blocks." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }
     });
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Gemini API Error: ${response.status} - ${errorData}`);
-    }
-
-    const data = await response.json();
-    const responseText = data.candidates[0].content.parts[0].text;
+    const responseText = completion.choices[0].message.content;
     const extractedData = JSON.parse(responseText);
     
     return extractedData;
   } catch (error) {
-    console.error("Error extracting details:", error);
+    console.error("Error extracting details:", error.message || error);
     return null;
   }
 }
