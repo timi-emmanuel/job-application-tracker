@@ -34,7 +34,7 @@ ${emailText}
 `;
 
     const completion = await client.chat.completions.create({
-      model: "gemini/gemini-2.5-flash",
+      model: "zorveus/gpt-oss-120b",
       messages: [
         { role: "system", content: "You are a precise data extraction bot. Always return pure JSON without markdown blocks." },
         { role: "user", content: prompt }
