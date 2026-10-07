@@ -105,5 +105,6 @@ async function fetchNewJobEmails() {
 }
 
 module.exports = {
-  fetchNewJobEmails
+  fetchNewJobEmails,
+  getGmailClient
 };

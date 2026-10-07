@@ -1,14 +1,9 @@
 require('dotenv').config();
-const { Zorveus } = require('@zorveus/sdk');
-
-const client = new Zorveus({
-  apiKey: process.env.ZORVEUS_API_KEY,
-});
 
 async function extractJobDetails(emailText) {
   try {
     const prompt = `
-You are a helpful assistant that extracts job application details from emails.
+You are a precise data extraction bot. Extract job application details from emails.
 
 CRITICAL INSTRUCTION: First, determine if this email is an ACTUAL confirmation that the user has applied for a job, an interview invitation, OR an actual job application email that the user sent directly to a company (e.g., "I am applying for...", "Please find my CV attached").
 If the email is just a job alert, job recommendation, newsletter, or marketing email, it is NOT valid.
@@ -33,16 +28,33 @@ ${emailText}
 """
 `;
 
-    const completion = await client.chat.completions.create({
-      model: "zorveus/gpt-oss-120b",
-      messages: [
-        { role: "system", content: "You are a precise data extraction bot. Always return pure JSON without markdown blocks." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    // Fetch the API Key
+    const apiKey = process.env.GEMINI_API_KEY; 
+    
+    if (!apiKey) {
+        throw new Error("Missing GEMINI_API_KEY in .env file!");
+    }
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json"
+        }
+      })
     });
 
-    const responseText = completion.choices[0].message.content;
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`Gemini API Error: ${response.status} - ${errorData}`);
+    }
+
+    const data = await response.json();
+    const responseText = data.candidates[0].content.parts[0].text;
     const extractedData = JSON.parse(responseText);
     
     return extractedData;
@@ -50,23 +62,6 @@ ${emailText}
     console.error("Error extracting details:", error);
     return null;
   }
-}
-
-// Simple test function if we run this file directly
-async function test() {
-  const sampleEmail1 = `
-Congratulations Adekunle Oluwatimilehin Emmanuel,
-Your application for UI Developer has been sent to the hiring team of Leaders Network.
-If you are shortlisted, you’ll be contacted for an interview.
-  `;
-  
-  console.log("Testing Email 1...");
-  const result1 = await extractJobDetails(sampleEmail1);
-  console.log(result1);
-}
-
-if (require.main === module) {
-  test();
 }
 
 module.exports = {
