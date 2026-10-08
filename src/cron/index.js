@@ -30,7 +30,7 @@ async function runJobTrackerPipeline() {
       await new Promise(resolve => setTimeout(resolve, 4500));
 
       // 2. Use AI (Zorveus) to extract the structured data
-      const jobData = await extractJobDetails(email.text || email.subject);
+      const jobData = await extractJobDetails(`Subject: ${email.subject}\n\n${email.text}`);
       
       if (jobData && jobData.Valid && jobData.Company && jobData.Company !== "Unknown") {
         jobData.Date = email.date; // Attach date from email metadata

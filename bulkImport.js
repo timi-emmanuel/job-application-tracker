@@ -51,10 +51,13 @@ async function runBulkImport() {
         } else if (msgData.data.payload.body?.data) {
           text = Buffer.from(msgData.data.payload.body.data, 'base64').toString('utf-8');
         }
+        
+        if (!text) text = msgData.data.snippet;
 
         await new Promise(resolve => setTimeout(resolve, 4500));
         
-        const jobData = await extractJobDetails(text || subject);
+        // Pass a combined string so AI always sees the subject and the snippet/body
+        const jobData = await extractJobDetails(`Subject: ${subject}\n\n${text}`);
         
         if (jobData && jobData.Valid && jobData.Company && jobData.Company !== "Unknown") {
           console.log(`💬 AI Extracted: ${jobData.Company} | ${jobData.Role} | ${jobData.Status}`);
