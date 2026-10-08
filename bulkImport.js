@@ -15,7 +15,7 @@ async function runBulkImport() {
     const res = await gmail.users.messages.list({
       userId: 'me',
       q: query,
-      maxResults: 300
+      maxResults: 100
     });
 
     const messages = res.data.messages || [];
